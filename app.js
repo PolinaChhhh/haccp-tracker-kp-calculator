@@ -11,6 +11,9 @@ const BASE = {
   },
 };
 
+// после деплоя Apps Script (см. google-apps-script/Code.gs.template) вставить сюда URL веб-приложения
+const GAS_WEBAPP_URL = "";
+
 const SROK_COEF = { 1: 1, 3: 0.8, 6: 0.7, 12: 0.6 };
 const DURATIONS = [1, 3, 6, 12];
 
@@ -329,7 +332,7 @@ async function downloadDocx() {
     new Paragraph({ text: "" }),
     boxWrap([
       bonusLine(
-        "3. НАШ ОПЫТ И ФОРМАТ СОТРУДНИЧЕСТВА. БЕСЦЕННО 🙂",
+        "3. НАШ ОПЫТ И ФОРМАТ СОТРУДНИЧЕСТВА.",
         "16 лет опыта в пищевом производстве, санитарных нормах и проверках. Команда ХАССП-АУДИТ — эксперты, которые помогли сотням заведений внедрить ХАССП, избежать штрафов и пройти проверки с первого раза. Поможем, проконсультируем, расскажем. Собственная разработка и IT-платформа — учитываем ваши пожелания."
       ),
     ]),
@@ -363,6 +366,67 @@ async function downloadDocx() {
   URL.revokeObjectURL(url);
 }
 
+// ---------- создание в Google Docs (через Apps Script) ----------
+
+function buildPayload() {
+  const modules = selectedModules();
+  const company = document.getElementById("company").value.trim();
+  const managerName = document.getElementById("managerName").value.trim();
+  const managerPhone = document.getElementById("managerPhone").value.trim();
+  const pointsLabel = pointColumns.map((p) => `${p} ${pointsWord(p)}`).join(", ");
+
+  const modulesPayload = modules.map((key) => {
+    const mod = BASE[key];
+    const rows = buildRows(mod.price);
+    return {
+      label: mod.label,
+      pointHeaders: pointColumns.map((p) => `${p} ${pointsWord(p)}`),
+      rows: rows.map((row) => ({
+        months: `${row.months} мес.`,
+        cells: row.cells.map((c) => `${fmt(c.total)} ₽ (${fmt(c.perMonth)} ₽/мес)`),
+      })),
+    };
+  });
+
+  return { company, managerName, managerPhone, pointsLabel, modules: modulesPayload };
+}
+
+async function createGoogleDoc() {
+  const modules = selectedModules();
+  if (modules.length === 0 || pointColumns.length === 0) {
+    alert("выберите хотя бы один модуль и хотя бы одно значение точек");
+    return;
+  }
+  if (!GAS_WEBAPP_URL) {
+    alert("Google Docs ещё не подключен: нужно задеплоить Apps Script и вписать его URL в app.js (GAS_WEBAPP_URL). Пока доступно только скачивание .docx.");
+    return;
+  }
+
+  const btn = document.getElementById("gdocsBtn");
+  const resultEl = document.getElementById("gdocsResult");
+  btn.disabled = true;
+  btn.textContent = "Создаю...";
+  resultEl.textContent = "";
+
+  try {
+    const payload = buildPayload();
+    const res = await fetch(GAS_WEBAPP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || "неизвестная ошибка");
+
+    resultEl.innerHTML = `Готово: <a href="${data.url}" target="_blank" rel="noopener">${data.url}</a>`;
+  } catch (err) {
+    resultEl.textContent = "Ошибка: " + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Создать в Google Docs";
+  }
+}
+
 // ---------- init ----------
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -378,6 +442,7 @@ window.addEventListener("DOMContentLoaded", () => {
   });
   document.querySelectorAll('input[id^="mod_"]').forEach((el) => el.addEventListener("change", renderPreview));
   document.getElementById("downloadBtn").addEventListener("click", downloadDocx);
+  document.getElementById("gdocsBtn").addEventListener("click", createGoogleDoc);
 
   const observer = new MutationObserver(renderPreview);
   observer.observe(document.getElementById("pointChips"), { childList: true });
