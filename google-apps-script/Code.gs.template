@@ -1,0 +1,150 @@
+// ХАССП-Трекер — генератор КП в Google Docs
+// Деплоится как Web App, выполняется от имени владельца скрипта (твоего аккаунта).
+// Калькулятор (app.js) шлёт сюда POST с посчитанными цифрами, скрипт создаёт
+// Google Doc в твоём Drive, открывает доступ по ссылке и возвращает URL.
+
+var LOGO_BASE64 = "__LOGO_BASE64__";
+
+var NAVY = "#0F3D5C";
+var RED = "#E2231A";
+
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var title = "КП ХАССП-Трекер — " + (data.company || "клиент") + " — " + Utilities.formatDate(new Date(), "GMT+3", "dd.MM.yyyy");
+    var doc = DocumentApp.create(title);
+    var body = doc.getBody();
+    body.clear();
+    body.setMarginTop(36).setMarginBottom(36).setMarginLeft(50).setMarginRight(50);
+
+    // ---- логотип ----
+    var imgBlob = Utilities.newBlob(Utilities.base64Decode(LOGO_BASE64), "image/png", "logo.png");
+    var img = body.appendImage(imgBlob);
+    img.setWidth(150);
+    img.setHeight(67);
+
+    // ---- заголовки ----
+    var titlePar = body.appendParagraph("КОММЕРЧЕСКОЕ ПРЕДЛОЖЕНИЕ");
+    titlePar.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
+    titlePar.editAsText().setBold(true).setFontSize(16).setForegroundColor(RED);
+
+    var subtitlePar = body.appendParagraph(
+      "ХАССП-ТРЕКЕР — ЦИФРОВАЯ ПЛАТФОРМА ДЛЯ МОНИТОРИНГА СОБЛЮДЕНИЯ САНИТАРНЫХ НОРМ И ФИКСАЦИИ НАРУШЕНИЙ"
+    );
+    subtitlePar.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
+    subtitlePar.editAsText().setBold(true).setFontSize(11).setForegroundColor(NAVY);
+
+    body.appendParagraph("");
+
+    var pointsPar = body.appendParagraph("Индивидуальный расчёт. " + data.pointsLabel + ".");
+    pointsPar.editAsText().setBold(true).setFontSize(13);
+
+    if (data.company) {
+      var compPar = body.appendParagraph("Для: " + data.company);
+      compPar.editAsText().setItalic(true);
+    }
+    body.appendParagraph("");
+
+    // ---- модули (таблица с навy-рамкой на каждый) ----
+    data.modules.forEach(function (mod) {
+      var modTitle = body.appendParagraph(mod.label);
+      modTitle.editAsText().setBold(true).setFontSize(12).setForegroundColor(NAVY);
+
+      var headerRow = ["Срок"].concat(mod.pointHeaders);
+      var tableData = [headerRow].concat(
+        mod.rows.map(function (r) {
+          return [r.months].concat(r.cells);
+        })
+      );
+      var table = body.appendTable(tableData);
+      table.setBorderColor(NAVY);
+      table.setBorderWidth(1.5);
+
+      for (var row = 0; row < table.getNumRows(); row++) {
+        var tr = table.getRow(row);
+        for (var col = 0; col < tr.getNumCells(); col++) {
+          var cell = tr.getCell(col);
+          cell.setPaddingTop(4).setPaddingBottom(4).setPaddingLeft(6).setPaddingRight(6);
+          var cellText = cell.editAsText();
+          if (row === 0) {
+            cell.setBackgroundColor(NAVY);
+            cellText.setForegroundColor("#FFFFFF").setBold(true);
+          }
+          cell.getChild(0).asParagraph().setAlignment(DocumentApp.HorizontalAlignment.CENTER);
+        }
+      }
+      body.appendParagraph("");
+    });
+
+    // ---- бонусы (боксы через 1-ячеечные таблицы с навy-рамкой) ----
+    var bonusHeading = body.appendParagraph("ДОПОЛНИТЕЛЬНЫЕ БОНУСЫ И ВЫГОДЫ");
+    bonusHeading.editAsText().setBold(true).setFontSize(12).setForegroundColor(NAVY);
+    body.appendParagraph("");
+
+    function appendBox(lines) {
+      var box = body.appendTable([[""]]);
+      box.setBorderColor(NAVY);
+      box.setBorderWidth(1.5);
+      var cell = box.getRow(0).getCell(0);
+      cell.setPaddingTop(8).setPaddingBottom(8).setPaddingLeft(10).setPaddingRight(10);
+      cell.getChild(0).asParagraph().removeFromParent();
+      lines.forEach(function (line) {
+        var p = cell.appendParagraph("");
+        var titleRun = p.appendText(line.title + " ");
+        titleRun.setBold(true).setForegroundColor(NAVY);
+        p.appendText(line.text);
+      });
+      body.appendParagraph("");
+    }
+
+    appendBox([
+      {
+        title: "1. СТОИМОСТЬ МОДУЛЕЙ.",
+        text: "Цена зафиксирована на 18 месяцев с момента подписания договора при условии оплаты в течение 30 дней после завершения тестирования.",
+      },
+      {
+        title: "2. СОПРОВОЖДЕНИЕ.",
+        text: "Техническая поддержка на всех этапах масштабирования. Обучение ключевых сотрудников и администраторов сети в формате онлайн-демонстрации + видеоинструкции для линейного персонала. В процессе тестирования обсудим и адаптируем функционал сервиса под особенности вашей сети.",
+      },
+    ]);
+
+    appendBox([
+      {
+        title: "3. НАШ ОПЫТ И ФОРМАТ СОТРУДНИЧЕСТВА.",
+        text: "16 лет опыта в пищевом производстве, санитарных нормах и проверках. Команда ХАССП-АУДИТ — эксперты, которые помогли сотням заведений внедрить ХАССП, избежать штрафов и пройти проверки с первого раза. Поможем, проконсультируем, расскажем. Собственная разработка и IT-платформа — учитываем ваши пожелания.",
+      },
+    ]);
+
+    // ---- подпись ----
+    body.appendParagraph("Менеджер ХАССП-ТРЕКЕР,");
+    var namePar = body.appendParagraph(data.managerName || "Менеджер ХАССП-ТРЕКЕР");
+    namePar.editAsText().setBold(true);
+    body.appendParagraph("");
+
+    var readyPar = body.appendParagraph("Готовы ответить на все ваши вопросы:");
+    readyPar.editAsText().setBold(true).setItalic(true).setForegroundColor(NAVY);
+
+    var contactPar = body.appendParagraph(
+      "Telegram, MAX " + (data.managerPhone || "+7 925 710 0944") + ". Эл.почта — sales@haccp-tracker.ru"
+    );
+    contactPar.editAsText().setBold(true);
+    body.appendParagraph("");
+
+    var ctaPar = body.appendParagraph("БУДЕМ РАДЫ ВИДЕТЬ ВАС В ЧИСЛЕ НАШИХ КЛИЕНТОВ!");
+    ctaPar.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
+    ctaPar.editAsText().setBold(true).setFontSize(13).setForegroundColor(RED);
+
+    doc.saveAndClose();
+
+    var file = DriveApp.getFileById(doc.getId());
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    return ContentService.createTextOutput(JSON.stringify({ ok: true, url: doc.getUrl() })).setMimeType(
+      ContentService.MimeType.JSON
+    );
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: String(err) })).setMimeType(
+      ContentService.MimeType.JSON
+    );
+  }
+}

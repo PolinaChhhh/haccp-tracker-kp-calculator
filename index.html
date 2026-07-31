@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<title>ХАССП-Трекер — калькулятор индивидуального расчёта</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+    color: #1f2328;
+    background: #fafafa;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .subtitle { color: #666; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
+  section {
+    background: #fff;
+    border: 1px solid #e2e2e2;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+  }
+  section h2 { font-size: 15px; margin: 0 0 12px; color: #333; }
+  label { display: block; font-size: 13px; color: #444; margin-bottom: 4px; }
+  input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  .row { display: flex; gap: 12px; }
+  .row > div { flex: 1; }
+  .modules-list { display: flex; flex-direction: column; gap: 8px; }
+  .modules-list label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #222; margin-bottom: 0; }
+  .points-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .preset-btn {
+    padding: 6px 12px;
+    border: 1px solid #cfcfcf;
+    background: #f3f3f3;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .preset-btn:hover { background: #e8e8e8; }
+  .custom-add { display: flex; gap: 6px; align-items: center; }
+  .custom-add input { width: 100px; margin-bottom: 0; }
+  .custom-add button {
+    padding: 7px 12px;
+    border: none;
+    background: #2d6cdf;
+    color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  #pointChips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    background: #eef3ff;
+    border: 1px solid #c7d7fb;
+    color: #1c4fb0;
+    padding: 5px 6px 5px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .chip-remove {
+    border: none;
+    background: none;
+    color: #1c4fb0;
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+    padding: 0 2px;
+  }
+  #downloadBtn {
+    padding: 12px 20px;
+    background: #1a7f37;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  #downloadBtn:hover { background: #146c2e; }
+  .hint { color: #888; font-size: 13px; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 18px; font-size: 13px; }
+  th, td { border: 1px solid #e0e0e0; padding: 8px 10px; text-align: center; }
+  th { background: var(--navy); color: #fff; }
+  td .sub { color: #888; font-size: 11px; }
+  h3 { font-size: 14px; margin: 0 0 8px; color: var(--navy); }
+
+  :root { --navy: #0f3d5c; --red: #e2231a; --lightblue: #a9c7dd; }
+
+  .doc-header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+  .doc-header img { height: 40px; }
+  .doc-title { color: var(--red); font-weight: 700; text-align: center; font-size: 18px; margin: 6px 0 4px; }
+  .doc-subtitle { color: var(--navy); font-weight: 700; text-align: center; font-size: 14px; line-height: 1.4; margin: 0 0 10px; }
+  .doc-divider { border: none; border-top: 2px solid var(--navy); margin: 10px 0 16px; }
+  .module-box { border: 1.5px solid var(--navy); border-radius: 6px; padding: 14px 16px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <img src="assets/logo.png" alt="ХАССП-Трекер" />
+  <div>
+    <h1 style="margin:0;">ХАССП-Трекер — индивидуальный расчёт</h1>
+    <p class="subtitle" style="margin:2px 0 0;">выбери модули и точки клиента → получи готовый .docx для отправки</p>
+  </div>
+</div>
+
+<section>
+  <h2>1. Клиент (необязательно)</h2>
+  <label for="company">Компания / название клиента</label>
+  <input type="text" id="company" placeholder="напр. Сеть кафе «Вкусно и точка»" />
+</section>
+
+<section>
+  <h2>2. Модули</h2>
+  <div class="modules-list">
+    <label><input type="checkbox" id="mod_ej" checked /> Электронные журналы</label>
+    <label><input type="checkbox" id="mod_cl" /> Чек-листы контроля</label>
+    <label><input type="checkbox" id="mod_complex" /> Комплекс (журналы + чек-листы)</label>
+  </div>
+</section>
+
+<section>
+  <h2>3. Точки для расчёта</h2>
+  <div class="points-controls">
+    <button type="button" class="preset-btn" data-points="1">+ 1 точка</button>
+    <button type="button" class="preset-btn" data-points="10">+ 10 точек</button>
+    <button type="button" class="preset-btn" data-points="50">+ 50 точек</button>
+    <div class="custom-add">
+      <input type="number" id="customPoints" placeholder="своё число" min="1" />
+      <button type="button" id="addCustomBtn">добавить</button>
+    </div>
+  </div>
+  <div id="pointChips"></div>
+</section>
+
+<section>
+  <h2>4. Менеджер</h2>
+  <div class="row">
+    <div>
+      <label for="managerName">Имя (для подписи в файле)</label>
+      <input type="text" id="managerName" placeholder="напр. Анастасия Я." />
+    </div>
+    <div>
+      <label for="managerPhone">Телефон Telegram/MAX</label>
+      <input type="text" id="managerPhone" placeholder="+7 925 710 0944" />
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Предпросмотр</h2>
+  <div id="preview"></div>
+  <button id="downloadBtn">Скачать .docx</button>
+</section>
+
+<script src="vendor/docx.umd.js"></script>
+<script src="assets/logo-data.js"></script>
+<script src="app.js?v=3"></script>
+</body>
+</html>
