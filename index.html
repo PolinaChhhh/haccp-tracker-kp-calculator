@@ -107,6 +107,59 @@
   .doc-subtitle { color: var(--navy); font-weight: 700; text-align: center; font-size: 14px; line-height: 1.4; margin: 0 0 10px; }
   .doc-divider { border: none; border-top: 2px solid var(--navy); margin: 10px 0 16px; }
   .module-box { border: 1.5px solid var(--navy); border-radius: 6px; padding: 14px 16px; margin-bottom: 16px; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid #e2e2e2; }
+  .tab-btn {
+    padding: 10px 18px;
+    border: none;
+    background: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+  }
+  .tab-btn.active { color: var(--navy); border-bottom-color: var(--navy); }
+  .tab-btn:hover:not(.active) { color: #333; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .input-cell { background: #fff9d6 !important; border: 1px solid #e6d98a !important; font-size: 18px !important; padding: 12px 14px !important; }
+  #tab-savings.active { display: block; }
+  #tab-savings {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    margin-left: -50vw;
+  }
+  .savings-grid {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 330px 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  .savings-grid label { font-size: 14px; margin-bottom: 4px; }
+  .savings-grid .input-cell { font-size: 16px !important; padding: 9px 10px !important; margin-bottom: 12px; }
+  .savings-grid .row { flex-direction: column; gap: 0; }
+  .calc-table { border-collapse: collapse; width: 100%; margin-bottom: 20px; font-size: 19px; }
+  .calc-table td { border: 1px solid #e0e0e0; padding: 16px 18px; }
+  .calc-table td:first-child { color: #444; }
+  .calc-table td:last-child { text-align: right; font-weight: 700; color: var(--navy); white-space: nowrap; font-size: 22px; }
+  .calc-table tr:nth-child(odd) { background: #fafafa; }
+  .benefit-box {
+    background: var(--navy);
+    color: #fff;
+    border-radius: 16px;
+    padding: 44px 48px;
+    margin-top: 8px;
+    text-align: center;
+  }
+  .benefit-box .label { font-size: 24px; opacity: 0.9; margin-bottom: 12px; }
+  .benefit-box .value.total { font-size: 84px; color: var(--red); font-weight: 800; line-height: 1.1; }
 </style>
 </head>
 <body>
@@ -114,10 +167,17 @@
 <div class="doc-header">
   <img src="assets/logo.png" alt="ХАССП-Трекер" />
   <div>
-    <h1 style="margin:0;">ХАССП-Трекер — индивидуальный расчёт</h1>
-    <p class="subtitle" style="margin:2px 0 0;">выбери модули и точки клиента → получи готовый .docx для отправки</p>
+    <h1 style="margin:0;">ХАССП-Трекер — калькуляторы</h1>
+    <p class="subtitle" style="margin:2px 0 0;">для менеджеров: расчёт тарифа и расчёт экономии клиента</p>
   </div>
 </div>
+
+<div class="tabs">
+  <button type="button" class="tab-btn active" data-tab="tariff">Индивидуальный расчёт точек</button>
+  <button type="button" class="tab-btn" data-tab="savings">Калькулятор экономии</button>
+</div>
+
+<div id="tab-tariff" class="tab-panel active">
 
 <section>
   <h2>1. Клиент (необязательно)</h2>
@@ -170,8 +230,66 @@
   </div>
 </section>
 
+</div>
+
+<div id="tab-savings" class="tab-panel">
+  <div class="savings-grid">
+    <section>
+      <h2>Вводные — заполняется на демонстрации</h2>
+      <div class="row">
+        <div>
+          <label for="s_points">Количество точек</label>
+          <input type="number" id="s_points" class="input-cell" value="1" min="1" />
+        </div>
+        <div>
+          <label for="s_employees">Количество сотрудников</label>
+          <input type="number" id="s_employees" class="input-cell" value="1" min="1" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="s_hours">Часов в день на ведение журналов</label>
+          <input type="number" id="s_hours" class="input-cell" value="2" min="0" step="0.5" />
+        </div>
+        <div>
+          <label for="s_salary">Оклад</label>
+          <input type="number" id="s_salary" class="input-cell" value="40000" min="0" step="1000" />
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Результат</h2>
+      <table class="calc-table">
+        <tr><td>Кол-во рабочих часов в месяц</td><td id="s_out_workhours">—</td></tr>
+        <tr><td>Ставка в час</td><td id="s_out_rate">—</td></tr>
+        <tr><td>Кол-во рабочих дней в год</td><td id="s_out_days">—</td></tr>
+        <tr><td>прямые затраты на материальное обеспечение бумажного документооборота</td><td id="s_out_direct">—</td></tr>
+      </table>
+      <div id="s_preview" class="benefit-box">
+        <div class="label">Затраты в год</div>
+        <div class="value total" id="s_out_total">—</div>
+      </div>
+      <div class="actions" style="margin-top:16px">
+        <button id="s_downloadBtn" class="primary-btn">Скачать .docx</button>
+      </div>
+    </section>
+  </div>
+</div>
+
 <script src="vendor/docx.umd.js"></script>
 <script src="assets/logo-data.js"></script>
-<script src="app.js?v=5"></script>
+<script src="app.js?v=6"></script>
+<script src="savings.js?v=3"></script>
+<script>
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+    });
+  });
+</script>
 </body>
 </html>
