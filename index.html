@@ -142,16 +142,12 @@
     --sv-cream: #F5EFE8; --sv-cream-dk: #EDE4D8;
     --sv-text: #1E2B3A; --sv-g500: #6B7A8F; --sv-g300: #C5CDD8; --sv-g100: #EEF1F5; --sv-g50: #F7F9FB;
     --sv-green: #1F6F47; --sv-green-soft: #E4EFE8;
-    background: var(--sv-cream);
+    background: #f1e8d8;
     font-family: 'Manrope', -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     color: var(--sv-text);
     padding-bottom: 40px;
   }
   #tab-savings .sv-wrap { max-width: 1400px; margin: 0 auto; padding: 30px 46px 0; }
-  #tab-savings header.sv-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 30px; margin-bottom: 26px; }
-  #tab-savings .sv-logo { width: 158px; height: 74px; overflow: hidden; position: relative; flex: none; border-radius: 6px; background: #fff; }
-  #tab-savings .sv-logo img { position: absolute; width: 230px; height: auto; left: -30px; top: -18px; }
-  #tab-savings .sv-head-r { text-align: right; font-size: 14px; font-weight: 700; color: var(--sv-g500); line-height: 1.7; }
   #tab-savings .sv-tag { display: inline-block; font-size: 14px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--sv-red); margin-bottom: 12px; }
   #tab-savings h1 { font-family: 'Unbounded', sans-serif; font-weight: 800; letter-spacing: -.03em; line-height: 1.08; color: var(--sv-blue-dark); font-size: 34px; max-width: 900px; margin: 0; }
   #tab-savings .sv-lede { font-size: 16px; color: var(--sv-g500); font-weight: 500; line-height: 1.5; max-width: 760px; margin-top: 12px; }
@@ -270,12 +266,7 @@
 
 <div id="tab-savings" class="tab-panel">
   <div class="sv-wrap">
-    <header class="sv-header">
-      <div class="sv-logo"><img src="assets/logo.png" alt="ХАССП-Трекер" /></div>
-      <div class="sv-head-r">+7 (925) 710-09-44<br>haccptracker.ru</div>
-    </header>
-
-    <span class="sv-tag">Калькулятор · для демонстрации</span>
+    <span class="sv-tag" style="margin-top:6px">Калькулятор · для демонстрации</span>
     <h1>Сколько стоит бумажный ХАССП именно у вас</h1>
     <p class="sv-lede">Заполняем вводные вместе на созвоне — расчёт пересчитывается мгновенно. Все цифры вашего производства, никаких средних по рынку.</p>
 
@@ -330,7 +321,7 @@
 <script src="vendor/docx.umd.js"></script>
 <script src="assets/logo-data.js"></script>
 <script src="app.js?v=6"></script>
-<script src="savings.js?v=4"></script>
+<script src="savings.js?v=5"></script>
 <script>
   document.querySelectorAll(".tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
