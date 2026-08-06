@@ -5,16 +5,21 @@
 function fmtS(n) {
   return Math.round(n).toLocaleString("ru-RU");
 }
+function rubS(n) {
+  return fmtS(n) + " ₽";
+}
 
 // фиксированные параметры формулы — не вводятся руками на демонстрации
 const S_WORKHOURS = 160; // рабочих часов в месяц
 const S_WORKDAYS = 320; // рабочих дней в год
-const S_DIRECT = 7000; // прямые затраты на бумагу и материалы, ₽/год
+const S_DIRECT = 7000; // прямые затраты на бумагу и материалы, ₽/год на точку
+
+const S_DEFAULTS = { points: 1, employees: 1, hours: 2, salary: 40000 };
 
 function sGetInputs() {
   return {
-    points: parseFloat(document.getElementById("s_points").value) || 0,
-    employees: parseFloat(document.getElementById("s_employees").value) || 0,
+    points: Math.max(1, parseFloat(document.getElementById("s_points").value) || 0),
+    employees: Math.max(1, parseFloat(document.getElementById("s_employees").value) || 0),
     hours: parseFloat(document.getElementById("s_hours").value) || 0,
     salary: parseFloat(document.getElementById("s_salary").value) || 0,
     workhours: S_WORKHOURS,
@@ -25,19 +30,39 @@ function sGetInputs() {
 
 function sCalc(v) {
   const hourlyRate = v.salary / v.workhours;
-  const laborCost = hourlyRate * v.hours * v.employees * v.workdays * v.points;
-  const total = laborCost + v.direct;
-  return { hourlyRate, laborCost, total };
+  const hoursYear = v.hours * v.workdays * v.employees * v.points;
+  const timeCost = hoursYear * hourlyRate;
+  const paperCost = v.direct * v.points;
+  const total = timeCost + paperCost;
+  return { hourlyRate, hoursYear, timeCost, paperCost, total };
 }
 
 function sRenderPreview() {
   const v = sGetInputs();
   const r = sCalc(v);
+
   document.getElementById("s_out_workhours").textContent = fmtS(v.workhours);
-  document.getElementById("s_out_rate").textContent = fmtS(r.hourlyRate) + " ₽";
   document.getElementById("s_out_days").textContent = fmtS(v.workdays);
-  document.getElementById("s_out_direct").textContent = fmtS(v.direct) + " ₽";
-  document.getElementById("s_out_total").textContent = fmtS(r.total) + " ₽";
+  document.getElementById("s_out_direct").textContent = rubS(v.direct);
+
+  document.getElementById("s_out_rate").textContent = rubS(r.hourlyRate);
+  document.getElementById("s_out_hours_year").textContent = fmtS(r.hoursYear) + " ч";
+  document.getElementById("s_out_time").textContent = rubS(r.timeCost);
+  document.getElementById("s_out_paper").textContent = rubS(r.paperCost);
+  document.getElementById("s_out_sum").textContent = rubS(r.total);
+
+  document.getElementById("s_out_total").textContent = rubS(r.total);
+  document.getElementById("s_hero_sub").textContent =
+    "в год" + (v.points > 1 ? " на сети из " + v.points + " точек" : "") +
+    ". Это время сотрудников на заполнение журналов плюс прямые расходы на бумагу и печать.";
+}
+
+function sReset() {
+  document.getElementById("s_points").value = S_DEFAULTS.points;
+  document.getElementById("s_employees").value = S_DEFAULTS.employees;
+  document.getElementById("s_hours").value = S_DEFAULTS.hours;
+  document.getElementById("s_salary").value = S_DEFAULTS.salary;
+  sRenderPreview();
 }
 
 async function sDownloadDocx() {
@@ -49,8 +74,8 @@ async function sDownloadDocx() {
     AlignmentType, WidthType, BorderStyle, ImageRun,
   } = docx;
 
-  const NAVY = "0F3D5C";
-  const RED = "E2231A";
+  const NAVY = "1E3A5F";
+  const RED = "8B1C2A";
 
   function base64ToUint8Array(base64) {
     const binary = atob(base64);
@@ -77,7 +102,7 @@ async function sDownloadDocx() {
     new Paragraph({ text: "" }),
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      children: [new TextRun({ text: "СКОЛЬКО ВЫ ТЕРЯЕТЕ НА БУМАЖНЫХ ЖУРНАЛАХ", bold: true, size: 28, color: RED })],
+      children: [new TextRun({ text: "СКОЛЬКО СТОИТ БУМАЖНЫЙ ХАССП ИМЕННО У ВАС", bold: true, size: 28, color: RED })],
     }),
     new Paragraph({
       alignment: AlignmentType.CENTER,
@@ -119,11 +144,13 @@ async function sDownloadDocx() {
     ["Количество точек", String(v.points)],
     ["Количество сотрудников", String(v.employees)],
     ["Часов в день на ведение журналов", String(v.hours)],
-    ["Оклад", fmtS(v.salary) + " ₽"],
+    ["Оклад", rubS(v.salary)],
     ["Кол-во рабочих часов в месяц", fmtS(v.workhours)],
-    ["Ставка в час", fmtS(r.hourlyRate) + " ₽"],
+    ["Ставка в час", rubS(r.hourlyRate)],
     ["Кол-во рабочих дней в год", fmtS(v.workdays)],
-    ["прямые затраты на материальное обеспечение бумажного документооборота", fmtS(v.direct) + " ₽"],
+    ["Часов на журналы в год", fmtS(r.hoursYear) + " ч"],
+    ["Стоимость времени", rubS(r.timeCost)],
+    ["прямые затраты на материальное обеспечение бумажного документооборота", rubS(r.paperCost)],
   ];
 
   children.push(
@@ -171,7 +198,7 @@ async function sDownloadDocx() {
   }
 
   children.push(
-    boxWrap(benefitLine("Затраты в год", fmtS(r.total) + " ₽", true).slice(0, -1))
+    boxWrap(benefitLine("Затраты в год", rubS(r.total), true).slice(0, -1))
   );
 
   children.push(
@@ -209,5 +236,6 @@ window.addEventListener("DOMContentLoaded", () => {
   document
     .querySelectorAll("#tab-savings input")
     .forEach((el) => el.addEventListener("input", sRenderPreview));
+  document.getElementById("s_resetBtn").addEventListener("click", sReset);
   document.getElementById("s_downloadBtn").addEventListener("click", sDownloadDocx);
 });

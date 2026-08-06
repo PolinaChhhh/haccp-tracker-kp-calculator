@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <title>ХАССП-Трекер — калькулятор индивидуального расчёта</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Unbounded:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root { color-scheme: light; }
   * { box-sizing: border-box; }
@@ -126,7 +127,6 @@
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
-  .input-cell { background: #fff9d6 !important; border: 1px solid #e6d98a !important; font-size: 18px !important; padding: 12px 14px !important; }
   #tab-savings.active { display: block; }
   #tab-savings {
     width: 100vw;
@@ -134,33 +134,68 @@
     left: 50%;
     margin-left: -50vw;
   }
-  .savings-grid {
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 0 24px;
-    display: grid;
-    grid-template-columns: 330px 1fr;
-    gap: 28px;
-    align-items: start;
+
+  /* --- Калькулятор экономии: дизайн под "КП для руководителя" --- */
+  #tab-savings {
+    --sv-red: #8B1C2A; --sv-red-light: #A83040;
+    --sv-blue: #3B5FA0; --sv-blue-dark: #1E3A5F; --sv-blue-mid: #2D4E8A;
+    --sv-cream: #F5EFE8; --sv-cream-dk: #EDE4D8;
+    --sv-text: #1E2B3A; --sv-g500: #6B7A8F; --sv-g300: #C5CDD8; --sv-g100: #EEF1F5; --sv-g50: #F7F9FB;
+    --sv-green: #1F6F47; --sv-green-soft: #E4EFE8;
+    background: var(--sv-cream);
+    font-family: 'Manrope', -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: var(--sv-text);
+    padding-bottom: 40px;
   }
-  .savings-grid label { font-size: 14px; margin-bottom: 4px; }
-  .savings-grid .input-cell { font-size: 16px !important; padding: 9px 10px !important; margin-bottom: 12px; }
-  .savings-grid .row { flex-direction: column; gap: 0; }
-  .calc-table { border-collapse: collapse; width: 100%; margin-bottom: 20px; font-size: 19px; }
-  .calc-table td { border: 1px solid #e0e0e0; padding: 16px 18px; }
-  .calc-table td:first-child { color: #444; }
-  .calc-table td:last-child { text-align: right; font-weight: 700; color: var(--navy); white-space: nowrap; font-size: 22px; }
-  .calc-table tr:nth-child(odd) { background: #faf5e9; }
-  .benefit-box {
-    background: var(--navy);
-    color: #fff;
-    border-radius: 16px;
-    padding: 44px 48px;
-    margin-top: 8px;
-    text-align: center;
-  }
-  .benefit-box .label { font-size: 24px; opacity: 0.9; margin-bottom: 12px; }
-  .benefit-box .value.total { font-size: 84px; color: var(--red); font-weight: 800; line-height: 1.1; }
+  #tab-savings .sv-wrap { max-width: 1400px; margin: 0 auto; padding: 30px 46px 0; }
+  #tab-savings header.sv-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 30px; margin-bottom: 26px; }
+  #tab-savings .sv-logo { width: 158px; height: 74px; overflow: hidden; position: relative; flex: none; border-radius: 6px; background: #fff; }
+  #tab-savings .sv-logo img { position: absolute; width: 230px; height: auto; left: -30px; top: -18px; }
+  #tab-savings .sv-head-r { text-align: right; font-size: 14px; font-weight: 700; color: var(--sv-g500); line-height: 1.7; }
+  #tab-savings .sv-tag { display: inline-block; font-size: 14px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--sv-red); margin-bottom: 12px; }
+  #tab-savings h1 { font-family: 'Unbounded', sans-serif; font-weight: 800; letter-spacing: -.03em; line-height: 1.08; color: var(--sv-blue-dark); font-size: 34px; max-width: 900px; margin: 0; }
+  #tab-savings .sv-lede { font-size: 16px; color: var(--sv-g500); font-weight: 500; line-height: 1.5; max-width: 760px; margin-top: 12px; }
+  #tab-savings .sv-grid { display: grid; grid-template-columns: 380px 1fr; gap: 24px; margin-top: 30px; align-items: start; }
+
+  #tab-savings .sv-card { background: #fff; border: 1px solid var(--sv-cream-dk); border-radius: 20px; box-shadow: 0 10px 30px rgba(30,58,95,.07); }
+  #tab-savings .sv-card-h { padding: 20px 24px 0; font-family: 'Unbounded', sans-serif; font-size: 16px; font-weight: 700; color: var(--sv-blue-dark); }
+  #tab-savings .sv-card-h small { display: block; font-family: 'Manrope', sans-serif; font-size: 12.5px; font-weight: 600; color: var(--sv-g500); margin-top: 6px; }
+
+  #tab-savings .sv-inputs { padding: 18px 24px 24px; display: flex; flex-direction: column; gap: 14px; }
+  #tab-savings .sv-f { display: flex; flex-direction: column; gap: 7px; }
+  #tab-savings .sv-f label { font-size: 13px; font-weight: 700; color: var(--sv-g500); }
+  #tab-savings .sv-f label span { color: var(--sv-g300); font-weight: 600; }
+  #tab-savings .sv-f input { font-family: 'Manrope', sans-serif; font-size: 19px; font-weight: 800; color: var(--sv-blue-dark); background: var(--sv-g50); border: 1.5px solid var(--sv-cream-dk); border-radius: 11px; padding: 10px 13px; width: 100%; transition: .15s; }
+  #tab-savings .sv-f input:focus { outline: none; border-color: var(--sv-blue); background: #fff; box-shadow: 0 0 0 3px rgba(59,95,160,.12); }
+
+  #tab-savings .sv-fixed { margin-top: 2px; border-top: 1px dashed var(--sv-cream-dk); padding-top: 14px; display: flex; flex-direction: column; gap: 9px; }
+  #tab-savings .sv-fixed-t { font-size: 11.5px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--sv-g300); }
+  #tab-savings .sv-fx { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 13px; font-weight: 600; color: var(--sv-g500); }
+  #tab-savings .sv-fx b { font-family: 'Unbounded', sans-serif; font-size: 13.5px; font-weight: 700; color: var(--sv-blue-dark); white-space: nowrap; }
+
+  #tab-savings .sv-right { display: flex; flex-direction: column; gap: 20px; }
+  #tab-savings .sv-hero { position: relative; background: var(--sv-blue-dark); border-radius: 20px; padding: 32px 38px 34px; overflow: hidden; color: #fff; box-shadow: 0 14px 40px rgba(30,58,95,.24); }
+  #tab-savings .sv-hero:before { content: ''; position: absolute; right: -70px; top: -90px; width: 340px; height: 340px; border-radius: 50%; background: rgba(255,255,255,.045); }
+  #tab-savings .sv-hero-t { position: relative; font-size: 14px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; color: rgba(255,255,255,.6); }
+  #tab-savings .sv-hero-v { position: relative; font-family: 'Unbounded', sans-serif; font-size: 72px; font-weight: 900; letter-spacing: -.04em; line-height: 1; margin-top: 12px; color: #fff; }
+  #tab-savings .sv-hero-s { position: relative; font-size: 15px; font-weight: 600; color: rgba(255,255,255,.68); margin-top: 12px; max-width: 640px; line-height: 1.5; }
+
+  #tab-savings .sv-split { padding: 20px 24px 24px; }
+  #tab-savings .sv-tbl-t { font-size: 12.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--sv-g500); margin-bottom: 12px; }
+  #tab-savings .sv-col { background: #FBF3F3; border: 1px solid #F0DCDC; border-radius: 14px; padding: 16px 18px; }
+  #tab-savings .sv-col-h { font-size: 12.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--sv-red); margin-bottom: 10px; }
+  #tab-savings .sv-li { display: flex; justify-content: space-between; gap: 14px; font-size: 14px; font-weight: 600; padding: 7px 0; border-bottom: 1px dashed var(--sv-cream-dk); }
+  #tab-savings .sv-li:last-child { border: none; padding-bottom: 0; }
+  #tab-savings .sv-li b { font-family: 'Unbounded', sans-serif; font-size: 14.5px; font-weight: 700; color: var(--sv-blue-dark); white-space: nowrap; }
+  #tab-savings .sv-col .sv-li:last-child b { color: var(--sv-red); }
+
+  #tab-savings .sv-actions { display: flex; align-items: center; gap: 16px; margin-top: 4px; flex-wrap: wrap; }
+  #tab-savings .sv-reset { background: none; border: none; font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 700; color: var(--sv-g500); cursor: pointer; text-align: left; padding: 0; }
+  #tab-savings .sv-reset:hover { color: var(--sv-red); }
+  #tab-savings .sv-download { padding: 12px 22px; background: var(--sv-red); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-family: 'Manrope', sans-serif; font-weight: 700; cursor: pointer; }
+  #tab-savings .sv-download:hover { background: var(--sv-red-light); }
+  #tab-savings footer.sv-footer { margin-top: 30px; display: flex; justify-content: space-between; font-size: 13.5px; font-weight: 600; color: var(--sv-g500); border-top: 1px solid var(--sv-cream-dk); padding-top: 16px; }
+  @media (max-width: 1080px) { #tab-savings .sv-grid { grid-template-columns: 1fr; } #tab-savings .sv-hero-v { font-size: 52px; } }
 </style>
 </head>
 <body>
@@ -234,54 +269,68 @@
 </div>
 
 <div id="tab-savings" class="tab-panel">
-  <div class="savings-grid">
-    <section>
-      <h2>Вводные — заполняется на демонстрации</h2>
-      <div class="row">
-        <div>
-          <label for="s_points">Количество точек</label>
-          <input type="number" id="s_points" class="input-cell" value="1" min="1" />
-        </div>
-        <div>
-          <label for="s_employees">Количество сотрудников</label>
-          <input type="number" id="s_employees" class="input-cell" value="1" min="1" />
-        </div>
-      </div>
-      <div class="row">
-        <div>
-          <label for="s_hours">Часов в день на ведение журналов</label>
-          <input type="number" id="s_hours" class="input-cell" value="2" min="0" step="0.5" />
-        </div>
-        <div>
-          <label for="s_salary">Оклад</label>
-          <input type="number" id="s_salary" class="input-cell" value="40000" min="0" step="1000" />
-        </div>
-      </div>
-    </section>
+  <div class="sv-wrap">
+    <header class="sv-header">
+      <div class="sv-logo"><img src="assets/logo.png" alt="ХАССП-Трекер" /></div>
+      <div class="sv-head-r">+7 (925) 710-09-44<br>haccptracker.ru</div>
+    </header>
 
-    <section>
-      <h2>Результат</h2>
-      <table class="calc-table">
-        <tr><td>Кол-во рабочих часов в месяц</td><td id="s_out_workhours">—</td></tr>
-        <tr><td>Ставка в час</td><td id="s_out_rate">—</td></tr>
-        <tr><td>Кол-во рабочих дней в год</td><td id="s_out_days">—</td></tr>
-        <tr><td>прямые затраты на материальное обеспечение бумажного документооборота</td><td id="s_out_direct">—</td></tr>
-      </table>
-      <div id="s_preview" class="benefit-box">
-        <div class="label">Затраты в год</div>
-        <div class="value total" id="s_out_total">—</div>
+    <span class="sv-tag">Калькулятор · для демонстрации</span>
+    <h1>Сколько стоит бумажный ХАССП именно у вас</h1>
+    <p class="sv-lede">Заполняем вводные вместе на созвоне — расчёт пересчитывается мгновенно. Все цифры вашего производства, никаких средних по рынку.</p>
+
+    <div class="sv-grid">
+      <div class="sv-card">
+        <div class="sv-card-h">Вводные<small>заполняется на демонстрации</small></div>
+        <div class="sv-inputs">
+          <div class="sv-f"><label for="s_points">Количество точек</label><input type="number" id="s_points" min="1" value="1" /></div>
+          <div class="sv-f"><label for="s_employees">Количество сотрудников <span>ведут журналы</span></label><input type="number" id="s_employees" min="1" value="1" /></div>
+          <div class="sv-f"><label for="s_hours">Часов в день на ведение журналов <span>на сотрудника</span></label><input type="number" id="s_hours" min="0" step="0.5" value="2" /></div>
+          <div class="sv-f"><label for="s_salary">Оклад</label><input type="number" id="s_salary" min="0" step="1000" value="40000" /></div>
+          <div class="sv-fixed">
+            <div class="sv-fixed-t">Принято по умолчанию</div>
+            <div class="sv-fx"><span>Кол-во рабочих часов в месяц</span><b id="s_out_workhours">160</b></div>
+            <div class="sv-fx"><span>Кол-во рабочих дней в год</span><b id="s_out_days">320</b></div>
+            <div class="sv-fx"><span>Прямые затраты на материальное обеспечение бумажного документооборота</span><b id="s_out_direct">7 000 ₽</b></div>
+          </div>
+          <div class="sv-actions">
+            <button type="button" class="sv-reset" id="s_resetBtn">↺ Сбросить вводные</button>
+          </div>
+        </div>
       </div>
-      <div class="actions" style="margin-top:16px">
-        <button id="s_downloadBtn" class="primary-btn">Скачать .docx</button>
+
+      <div class="sv-right">
+        <div class="sv-hero">
+          <div class="sv-hero-t">Затраты в год</div>
+          <div class="sv-hero-v" id="s_out_total">—</div>
+          <div class="sv-hero-s" id="s_hero_sub">Это время сотрудников на заполнение журналов плюс прямые расходы на бумагу и печать.</div>
+        </div>
+
+        <div class="sv-card sv-split">
+          <div class="sv-tbl-t">Как считается</div>
+          <div class="sv-col">
+            <div class="sv-col-h">Бумажный учёт</div>
+            <div class="sv-li"><span>Ставка в час</span><b id="s_out_rate">—</b></div>
+            <div class="sv-li"><span>Часов на журналы в год</span><b id="s_out_hours_year">—</b></div>
+            <div class="sv-li"><span>Стоимость времени</span><b id="s_out_time">—</b></div>
+            <div class="sv-li"><span>Бумага и печать</span><b id="s_out_paper">—</b></div>
+            <div class="sv-li"><span>Итого в год</span><b id="s_out_sum">—</b></div>
+          </div>
+          <div class="sv-actions" style="margin-top:18px">
+            <button type="button" class="sv-download" id="s_downloadBtn">Скачать .docx</button>
+          </div>
+        </div>
       </div>
-    </section>
+    </div>
+
+    <footer class="sv-footer"><span>ХАССП-ТРЕКЕР · цифровой контроль пищевой безопасности</span><span>Расчёт носит оценочный характер</span></footer>
   </div>
 </div>
 
 <script src="vendor/docx.umd.js"></script>
 <script src="assets/logo-data.js"></script>
 <script src="app.js?v=6"></script>
-<script src="savings.js?v=3"></script>
+<script src="savings.js?v=4"></script>
 <script>
   document.querySelectorAll(".tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
